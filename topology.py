@@ -11,3 +11,18 @@ class FatTree(Topo):
         self.k = k
         super(FatTree, self).__init__()
 
+    # Build the topology
+    def build(self):
+        # Define the lists of switches
+        edge_switches = []
+        agg_switches = []
+        core_switches = []
+
+        # Define the number of switches and hosts
+        pod = self.k
+        num_edge_per_pod = self.k // 2
+        num_agg_per_pod = self.k // 2
+        hosts_per_edge = self.k // 2
+        num_core_switches = (self.k // 2) ** 2
+
+     
