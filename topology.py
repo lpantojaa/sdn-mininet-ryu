@@ -25,4 +25,9 @@ class FatTree(Topo):
         hosts_per_edge = self.k // 2
         num_core_switches = (self.k // 2) ** 2
 
-     
+        # Create core switches
+        for c in range(num_core_switches):
+            j = c // (self.k // 2)
+            i = c % (self.k // 2)
+            core_switch = self.addSwitch('crSw{}'.format(c), dpid='00:00:00:00:00:{:02x}:{:02x}:{:02x}'.format(self.k, j, i))
+            core_switches.append(core_switch)
