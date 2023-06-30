@@ -31,3 +31,26 @@ class FatTree(Topo):
             i = c % (self.k // 2)
             core_switch = self.addSwitch('crSw{}'.format(c), dpid='00:00:00:00:00:{:02x}:{:02x}:{:02x}'.format(self.k, j, i))
             core_switches.append(core_switch)
+
+        # Create pods
+        for p in range(pod):
+            pod_edge_switches = []
+            pod_agg_switches = []
+            # Create aggregation switches
+            for s in range(num_agg_per_pod):
+                agg_switch = self.addSwitch('agSw{}{}'.format(p, s), dpid='00:00:00:00:00:{:02x}:{:02x}:01'.format(p, s + self.k // 2))
+                pod_agg_switches.append(agg_switch)
+
+            # Create edge switches
+            for s in range(num_edge_per_pod):
+                edge_switch = self.addSwitch('edSw{}{}'.format(p, s), dpid='00:00:00:00:00:{:02x}:{:02x}:01'.format(p, s))
+                pod_edge_switches.append(edge_switch)
+
+                # Create hosts
+                for h in range(hosts_per_edge):
+                    host_id_ip = h + 2
+                    host = self.addHost('h{}{}{}'.format(p, s, h), ip = '10.{}.{}.{}'.format(p, s, host_id_ip) + '/8')
+                    self.addLink(host, edge_switch)
+            
+            edge_switches.append(pod_edge_switches)
+            agg_switches.append(pod_agg_switches)
