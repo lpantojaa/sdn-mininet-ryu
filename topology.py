@@ -54,3 +54,17 @@ class FatTree(Topo):
             
             edge_switches.append(pod_edge_switches)
             agg_switches.append(pod_agg_switches)
+
+        # Create links among switches
+        # Create connections of edge switches to aggregation switches
+        for p in range(pod):
+            for s in range(num_edge_per_pod):
+                for a in range(num_agg_per_pod):
+                    self.addLink(edge_switches[p][s], agg_switches[p][a])
+
+        # Create connections of aggregation switches to core switches
+        for p in range(pod):
+            for a in range(num_agg_per_pod):
+                for c in range(num_core_switches):
+                    if (c // (self.k // 2)) == a:
+                        self.addLink(agg_switches[p][a], core_switches[c])
