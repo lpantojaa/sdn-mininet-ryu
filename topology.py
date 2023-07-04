@@ -68,3 +68,6 @@ class FatTree(Topo):
                 for c in range(num_core_switches):
                     if (c // (self.k // 2)) == a:
                         self.addLink(agg_switches[p][a], core_switches[c])
+
+# Add the topology to the dictionary of available topologies
+topos = { 'fattree' : ( lambda k : FatTree(k)) }
