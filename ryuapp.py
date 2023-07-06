@@ -16,4 +16,8 @@ class FatTreeRyuApp(app_manager.RyuApp):
         if self.k % 2 != 0 or self.k < K_MINIMUM:
             raise ValueError("k must be an even number greater than or equal to {}.".format(K_MINIMUM))
 
-   
+    def add_flow(self, datapath, priority, match, actions):
+        # Adds a flow to the given datapath with certain priority, match, and actions. It is a general method.
+        instruction = [datapath.ofproto_parser.OFPInstructionActions(datapath.ofproto.OFPIT_APPLY_ACTIONS, actions)]
+        mod_msg = datapath.ofproto_parser.OFPFlowMod(datapath = datapath, priority = priority, match = match, instructions = instruction)
+        datapath.send_msg(mod_msg)
