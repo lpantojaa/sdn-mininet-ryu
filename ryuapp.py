@@ -27,6 +27,12 @@ class FatTreeRyuApp(app_manager.RyuApp):
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def packet_features_handler(self, ev):
+        """
+        This method is triggered when a switch first establishes a connection with the controller and sends a 
+        'features reply' message. The method identifies the type of the switch (core, aggregation, or edge) 
+        based on its datapath ID and sets up the initial flow rules accordingly. It also sets up a 'table-miss' 
+        flow entry with lowest priority (priority=0) that sends any unmatched packets to the controller. 
+        """
         datapath = ev.msg.datapath  # Extract the datapath object from the event
         priority = 0  # Define the priority for our flow rule
         k = self.k 
@@ -39,3 +45,11 @@ class FatTreeRyuApp(app_manager.RyuApp):
         
         # Add a flow entry to the switch that matches all packets and sends them to the controller
         self.add_flow(datapath, priority, match, actions)
+
+        # Convert the datapath ID of the switch into a 6-digit hexadecimal string
+        dpid = '{:06x}'.format(datapath.id)
+        self.logger.info("Switch with DPID: %s connected", dpid)
+
+        # Extract the pod number and the switch number within the pod from the DPID
+        pod_num = int(dpid[:2], 16)
+        sw_num = int(dpid[-2:-4:-1], 16)
