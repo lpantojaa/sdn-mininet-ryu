@@ -63,6 +63,7 @@ class FatTreeRyuApp(app_manager.RyuApp):
 
         # Set the priority levels for downlink and uplink traffic
         priority_uplink = 1
+        priority_downlink = 10
 
         # If the switch is a core switch
         if pod_num == k:
@@ -71,3 +72,15 @@ class FatTreeRyuApp(app_manager.RyuApp):
                 port = i + 1
                 ip = ('10.{}.0.0'.format(i), '255.255.0.0')
                 self.add_ip_flow(datapath, priority_uplink, ip, port)
+
+        # If the switch is an aggregation switch (i.e., sw_num is larger than k/2)
+        elif sw_num >= k/2:
+            # Set up the IP flow rules for the aggregation switch
+            for i in range(k // 2):
+                port = ((i - 2 + sw_num) % (k // 2) + k // 2) + 1
+                ip = ('0.0.0.{}'.format(i + 2), '0.0.0.255')
+                self.add_ip_flow(datapath, priority_uplink, ip, port)
+            for i in range(k // 2):
+                port = i + 1
+                ip = ('10.{}.{}.0'.format(pod_num, i), '255.255.255.0')
+                self.add_ip_flow(datapath, priority_downlink, ip, port)
