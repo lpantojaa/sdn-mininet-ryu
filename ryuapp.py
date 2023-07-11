@@ -6,6 +6,7 @@ from ryu.controller.handler import set_ev_cls
 import os
 
 K_MINIMUM = 4
+ETH_TYPE_IP = 0x0800
 
 class FatTreeRyuApp(app_manager.RyuApp):
     # A Ryu app for the Fat-Tree topology
@@ -24,6 +25,12 @@ class FatTreeRyuApp(app_manager.RyuApp):
         instruction = [datapath.ofproto_parser.OFPInstructionActions(datapath.ofproto.OFPIT_APPLY_ACTIONS, actions)]
         mod_msg = datapath.ofproto_parser.OFPFlowMod(datapath = datapath, priority = priority, match = match, instructions = instruction)
         datapath.send_msg(mod_msg)
+
+    def add_ip_flow(self, datapath, priority, ip, port):
+        # Adds an IP flow to the given datapath using the add_flow method, with certain IP, port, and priority.
+        match = datapath.ofproto_parser.OFPMatch(ipv4_dst = ip, eth_type = ETH_TYPE_IP)
+        actions = [datapath.ofproto_parser.OFPActionOutput(port)]
+        self.add_flow(datapath, priority, match, actions)
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def packet_features_handler(self, ev):
@@ -53,3 +60,14 @@ class FatTreeRyuApp(app_manager.RyuApp):
         # Extract the pod number and the switch number within the pod from the DPID
         pod_num = int(dpid[:2], 16)
         sw_num = int(dpid[-2:-4:-1], 16)
+
+        # Set the priority levels for downlink and uplink traffic
+        priority_uplink = 1
+
+        # If the switch is a core switch
+        if pod_num == k:
+            # Set up the IP flow rules for the core switch
+            for i in range(k):
+                port = i + 1
+                ip = ('10.{}.0.0'.format(i), '255.255.0.0')
+                self.add_ip_flow(datapath, priority_uplink, ip, port)
