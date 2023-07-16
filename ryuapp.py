@@ -41,17 +41,7 @@ class FatTreeRyuApp(app_manager.RyuApp):
         flow entry with lowest priority (priority=0) that sends any unmatched packets to the controller. 
         """
         datapath = ev.msg.datapath  # Extract the datapath object from the event
-        priority = 0  # Define the priority for our flow rule
         k = self.k 
-
-        # Create a match object with no specific match fields (i.e., it will match all packets)
-        match = datapath.ofproto_parser.OFPMatch()
-        
-        # Create an action that outputs all packets to the controller
-        actions = [datapath.ofproto_parser.OFPActionOutput(datapath.ofproto.OFPP_CONTROLLER, datapath.ofproto.OFPCML_NO_BUFFER)]
-        
-        # Add a flow entry to the switch that matches all packets and sends them to the controller
-        self.add_flow(datapath, priority, match, actions)
 
         # Convert the datapath ID of the switch into a 6-digit hexadecimal string
         dpid = '{:06x}'.format(datapath.id)
