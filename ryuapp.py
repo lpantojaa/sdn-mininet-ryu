@@ -37,8 +37,7 @@ class FatTreeRyuApp(app_manager.RyuApp):
         """
         This method is triggered when a switch first establishes a connection with the controller and sends a 
         'features reply' message. The method identifies the type of the switch (core, aggregation, or edge) 
-        based on its datapath ID and sets up the initial flow rules accordingly. It also sets up a 'table-miss' 
-        flow entry with lowest priority (priority=0) that sends any unmatched packets to the controller. 
+        based on its datapath ID and sets up the initial flow rules accordingly.
         """
         datapath = ev.msg.datapath  # Extract the datapath object from the event
         k = self.k 
